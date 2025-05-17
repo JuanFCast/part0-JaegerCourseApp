@@ -1,27 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.3.3</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
+
 	<groupId>com.futurex.services</groupId>
 	<artifactId>FutureXCourseApp</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>FutureXCourseApp</name>
-	<description>Demo project for Spring Boot</description>
+	<description>Demo project for Spring Boot + OpenTelemetry</description>
 
 	<properties>
 		<java.version>17</java.version>
 		<spring-cloud.version>2023.0.3</spring-cloud.version>
 	</properties>
 
+	<!-- Dependencias -->
 	<dependencies>
 
-		<!-- NUEVO -->
+		<!-- OpenTelemetry núcleo -->
 		<dependency>
 			<groupId>io.opentelemetry</groupId>
 			<artifactId>opentelemetry-api</artifactId>
@@ -34,16 +38,22 @@
 			<groupId>io.opentelemetry</groupId>
 			<artifactId>opentelemetry-exporter-otlp</artifactId>
 		</dependency>
+		<!-- Solo si usas atributos semánticos manualmente -->
 		<dependency>
 			<groupId>io.opentelemetry.semconv</groupId>
 			<artifactId>opentelemetry-semconv</artifactId>
-			<version>1.21.0-alpha</version>
 		</dependency>
 
-		<!-- Instrumentación automática -->
+		<!-- Instrumentación automática Spring Boot -->
 		<dependency>
 			<groupId>io.opentelemetry.instrumentation</groupId>
 			<artifactId>opentelemetry-spring-boot-starter</artifactId>
+		</dependency>
+
+		<!-- Logback → OTLP -->
+		<dependency>
+			<groupId>io.opentelemetry.instrumentation</groupId>
+			<artifactId>opentelemetry-logback-appender-1.0</artifactId>
 		</dependency>
 
 		<!-- Actuator y métricas -->
@@ -60,14 +70,7 @@
 			<artifactId>micrometer-registry-otlp</artifactId>
 		</dependency>
 
-		<!-- NUEVO: Logs OTLP -->
-		<dependency>
-			<groupId>io.opentelemetry.instrumentation</groupId>
-			<artifactId>opentelemetry-logback-appender-1.0</artifactId>
-			<version>1.31.0-alpha</version>
-		</dependency>
-
-		<!-- Configuración actual -->
+		<!-- Persistencia y web -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -85,6 +88,8 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
+
+		<!-- Testing -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -99,15 +104,37 @@
 
 	</dependencies>
 
+	<!-- Gestión de versiones centralizada -->
 	<dependencyManagement>
 		<dependencies>
+			<!-- OpenTelemetry estable -->
 			<dependency>
-				<groupId>io.opentelemetry.instrumentation</groupId>
-				<artifactId>opentelemetry-instrumentation-bom</artifactId>
-				<version>2.6.0</version>
+				<groupId>io.opentelemetry</groupId>
+				<artifactId>opentelemetry-bom</artifactId>
+				<version>1.40.0</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
+
+			<!-- OpenTelemetry módulos alpha (semconv, etc.) -->
+			<dependency>
+				<groupId>io.opentelemetry</groupId>
+				<artifactId>opentelemetry-bom-alpha</artifactId>
+				<version>1.40.0-alpha</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+
+			<!-- Instrumentación alpha -->
+			<dependency>
+				<groupId>io.opentelemetry.instrumentation</groupId>
+				<artifactId>opentelemetry-instrumentation-bom-alpha</artifactId>
+				<version>2.6.0-alpha</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+
+			<!-- Spring Cloud -->
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-dependencies</artifactId>
@@ -118,6 +145,7 @@
 		</dependencies>
 	</dependencyManagement>
 
+	<!-- Build -->
 	<build>
 		<plugins>
 			<plugin>
